@@ -22,6 +22,9 @@ def column_norms(x):
 
 
 def l2_normalize(x):
+    """
+    Returns an L2-normalized version of the data in x.  If x is two-dimensional, each column of x is normalized.
+    """
     x = np.asarray(x, dtype='float64')
     if x.ndim == 1:
         norm_ = np.fmax(norm(x), 100*EPS)
@@ -29,6 +32,8 @@ def l2_normalize(x):
     elif x.ndim == 2:
         norms = np.fmax(column_norms(x), 100*EPS)
         return x / asrowvector(norms)
+    else:
+        raise ValueError('x should have one or two dimensions')
 
 
 def cosine_similarity(a, b):
@@ -52,7 +57,18 @@ def avk(v, k):
     """
     Mean resultant length of a vMF in dimension v with concentration k.
     """
+    assert np.isscalar(v)
+    assert np.isscalar(k)
     return (np.sqrt((v/k)**2+4) - v/k)/2.0
+
+
+def deriv_avk(v, k):
+    """ Derivative of the VMF mean resultant length w.r.t. kappa. """
+    # From Sra & Dhillon, TR-03-06
+    #a = AvK(v,k);
+    #deriv = 1-a^2 - (v-1)/k*a;
+    #return -1/2/(v^2/k^2+4)^(1/2)*v^2/k^3+1/2*v/k^2
+    return -0.5 / (v**2/k**2+4)**0.5 * v**2/k**3 + 0.5*v/k**2
 
 
 @contextmanager

@@ -3,6 +3,7 @@ from scipy.special import gammaln, psi, polygamma
 
 from pickle_file_io import PickleFileIO
 from math_util import *
+import optimize
 
 
 class VEMModel(PickleFileIO):
@@ -27,17 +28,17 @@ class VEMModel(PickleFileIO):
             self.v[:, d] = self.reader.read_doc(d).T
 
         # Variational parameters
-        self.alpha = np.ones(T)*1.0 + 1.0
-        self.M = l2_normalize(np.ones(self.V))  # Paramter to p(mu)
+        self.alpha = np.ones(self.T)*1.0 + 1.0
+        self.m = l2_normalize(np.ones(self.V))  # Parameter to p(mu)
         self.kappa0 = 10.0
         self.kappa1 = 5000.0
         self.xi = 5000.0
 
         self.vm = l2_normalize(np.random.rand(self.V))
         self.vmu = l2_normalize(np.random.rand(self.V, self.T))
-        self.valpha = np.empty((self.T, self.num_docs))
 
         # Initialize vAlpha
+        self.valpha = np.empty((self.T, self.num_docs))
         for d in range(self.num_docs):
             distances_from_topics = np.abs(cosine_similarity(self.v[:, d], self.vmu)) + 0.01
             self.valpha[:, d] = distances_from_topics / sum(distances_from_topics) * 3.0
@@ -92,6 +93,14 @@ class VEMModel(PickleFileIO):
         likelihood = a_xi*a_k0*self.xi*vm_dot_sum_of_vmu + self.kappa1*sum_of_rhos
         return likelihood
 
+    def l_xi(self):
+        a_xi = avk(self.V, self.xi)
+        a_k0 = avk(self.V, self.kappa0)
+        sum_of_rhos = sum(self.rho_batch())
+
+        return a_xi*self.xi * (a_k0*np.dot(self.vm.T, np.sum(self.vmu, axis=1)) - self.T) \
+            + self.kappa1*sum_of_rhos
+
     def grad_l_valpha(self):
         alpha0 = np.sum(self.alpha)
         valpha0s = np.sum(self.valpha, axis=0)
@@ -107,7 +116,7 @@ class VEMModel(PickleFileIO):
         addToEachRow = -grad_psi_valpha0s*(alpha0 - self.T) \
             + grad_psi_valpha0s*(valpha0s - self.T)
 
-        grad += ascolvector(addToEachRow)
+        grad += asrowvector(addToEachRow)
         return grad
 
     def grad_l_vmu(self):
@@ -117,7 +126,7 @@ class VEMModel(PickleFileIO):
 
         esns = self.e_squared_norm_batch()
 
-        valpha0s = np.sum(self.valpha, axis=0)  # Column vector
+        valpha0s = np.sum(self.valpha, axis=0)
 
         # For single d:  aXi/vAlphaD0 /sqrt(esn) * vd * vAlphaD'
         first_term = np.dot(self.v, (self.valpha * a_xi / asrowvector(valpha0s * np.sqrt(esns))).T)
@@ -136,8 +145,24 @@ class VEMModel(PickleFileIO):
         third_term = np.dot(self.vmu, np.dot(rescaled_valphas, rescaled_valphas.T))
 
         sum_over_documents = first_term - second_term - third_term
-
         return ascolvector(a_xi*a_k0*self.xi*self.vm) + self.kappa1*sum_over_documents
+
+    def grad_l_alpha(self):
+        alpha0 = np.sum(self.alpha)
+        valpha0s = np.sum(self.valpha, axis=0)
+
+        return np.sum(psi(self.valpha), axis=1) - np.sum(psi(valpha0s)) \
+            + self.D*psi(alpha0) - self.D*psi(self.alpha)
+
+    def grad_l_xi(self):
+        a_xi = avk(self.V, self.xi)
+        a_prime_xi = deriv_avk(self.V, self.xi)
+        a_k0 = avk(self.V, self.kappa0)
+
+        sum_over_documents = sum(self.deriv_rho_xi())
+        #                                    (a_k0*np.dot(self.vm.T, np.sum(self.vmu, axis=1)) - self.T)
+        return (a_prime_xi*self.xi + a_xi) * (a_k0*np.dot(self.vm.T, np.sum(self.vmu, axis=1)) - self.T) \
+            + self.kappa1*sum_over_documents
 
     def tangent_grad_l_vmu(self):
         """
@@ -160,10 +185,6 @@ class VEMModel(PickleFileIO):
         vmu_times_v = self.vmu.T.dot(self.v)
         return np.sum(self.valpha * asrowvector(1.0/valpha0s/np.sqrt(esns)) * vmu_times_v, axis=0) \
                    * avk(self.V, self.xi)
-
-    # add properties dynamically to the class
-    # self.valpha0 is a property that retreives summary_stats['valpha0']['value'] or sets it to
-    # summary_stats['valpha0']['f'] if that is None
 
     def grad_rho_valpha_batch(self):
         valpha0s = np.sum(self.valpha, axis=0)
@@ -192,12 +213,10 @@ class VEMModel(PickleFileIO):
         valpha_squares = np.sum(self.valpha**2, axis=0)
         a_xi_squared = avk(self.V, self.xi) ** 2
 
-        vMuDotVMu = np.dot(self.vmu.T, self.vmu)
-
+        vMuDotVMu = np.dot(self.vmu.T, self.vmu)  # T by T
         vMuVAlphaVMuVAlpha = np.sum(
             np.dot(self.valpha.T, vMuDotVMu).T * self.valpha,
             axis=0)
-        #vMuVAlphaVMuVAlpha = sum((self.vAlpha' * (model.vMu' * self.vMu))' .* model.vAlpha, 1)
 
         esns = (valpha0s + (1.0-a_xi_squared)*valpha_squares + a_xi_squared*vMuVAlphaVMuVAlpha) / (valpha0s * (valpha0s + 1))
         return esns
@@ -214,3 +233,63 @@ class VEMModel(PickleFileIO):
         grad *= asrowvector(per_doc_weights)
         return grad
 
+    def deriv_rho_xi(self):
+        """ Gradient of each Rho_d with respect to xi. """
+        a_xi = avk(self.V, self.xi)
+        deriv_a_xi = deriv_avk(self.V, self.xi)
+        valpha0s = np.sum(self.valpha, axis=0)
+        esns = self.e_squared_norm_batch()
+        deriv_e_squared_norm_xis  = self.grad_e_squared_norm_xi()
+
+        vMuTimesVAlphaDotDoc = np.sum(self.valpha * np.dot(self.vmu.T, self.v), axis=0)
+
+        deriv = deriv_a_xi * vMuTimesVAlphaDotDoc / (valpha0s * np.sqrt(esns)) \
+            - a_xi/2 * vMuTimesVAlphaDotDoc / (valpha0s * esns**1.5) * deriv_e_squared_norm_xis
+        return deriv
+
+    def grad_e_squared_norm_xi(self):
+        """ Gradient of the expectation of the squared norms with respect to xi """
+        a_xi = avk(self.V, self.xi)
+        deriv_a_xi = deriv_avk(self.V, self.xi)
+
+        valpha0s = np.sum(self.valpha, axis=0)
+        sum_valphas_squared = np.sum(self.valpha**2, axis=0)
+        vMuVAlphaVMuVAlpha = np.sum(np.dot(self.valpha.T, np.dot(self.vmu.T, self.vmu)).T * self.valpha, axis=0)
+        deriv = 2*a_xi*deriv_a_xi*(vMuVAlphaVMuVAlpha - sum_valphas_squared) / (valpha0s * (valpha0s + 1))
+        return deriv
+
+    def update_vm(self):
+        self.vm = l2_normalize(
+            self.kappa0*self.m + avk(self.V, self.xi)*self.xi*np.sum(self.vmu, axis=1)
+        )
+
+    def update_m(self):
+        self.m = l2_normalize(np.sum(self.vmu, axis=1))  # Sum across topics
+
+    def update_valpha(self):
+        optimize.optimize_parameter(self, 'valpha', self.l_valpha, self.grad_l_valpha)
+
+    def update_alpha(self):
+        optimize.optimize_parameter(self, 'alpha', self.l_alpha, self.grad_l_alpha)
+
+    def update_xi(self):
+        optimize.optimize_parameter(self, 'xi', self.l_xi, self.grad_l_xi)
+
+    def update_vmu(self):
+        # XXX: The topics (vmus) must lie on the hypersphere, i.e. have unit L2 norm.  I'm not sure if scipy has
+        # an optimization method that can accommodate this type of constraint, so instead, I'm encoding
+        # it here a Lagrange multiplier.  This should at least push the optimizer towards solutions close to the
+        # L2 constraint.
+
+        # Set the strength of the Lagrange multipler to something much larger than the objective
+        LAMBDA = 10.0*self.l_vmu()
+        def f():
+            squared_norms = np.sum(self.vmu ** 2, axis=0)
+            return self.l_vmu() - LAMBDA*np.sum((squared_norms - 1.0)**2)
+
+        def g():
+            squared_norms = np.sum(self.vmu ** 2, axis=0)
+            return self.tangent_grad_l_vmu() - LAMBDA*np.sum(2.0*(squared_norms - 1.0)*(2.0*self.vmu))
+
+        optimize.optimize_parameter(self, 'vmu', f, g, bounds=(-1.0, 1.0))
+        self.vmu = l2_normalize(self.vmu)  # Renormalize
