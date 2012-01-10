@@ -65,7 +65,7 @@ def check_grad(model, param_name, f, g):
     return scipy_check_grad(eval_f, eval_g, x0)
 
 
-def optimize_parameter(model, param_name, f, g, bounds=(1e-4, None), disp=0):
+def optimize_parameter(model, param_name, f, g, bounds=(1e-4, None), disp=0, max_evals=100):
     from scipy.optimize import fmin_tnc
 
     p = ModelParameterAcessor(model, param_name)
@@ -85,7 +85,7 @@ def optimize_parameter(model, param_name, f, g, bounds=(1e-4, None), disp=0):
     bounds = [bounds] * len(x0)
 
     old_f_val = -f()
-    x, nfeval, rc = fmin_tnc(negative_f_and_f_prime, x0=x0, bounds=bounds, disp=disp)
+    x, nfeval, rc = fmin_tnc(negative_f_and_f_prime, x0=x0, bounds=bounds, disp=disp, maxfun=max_evals)
     p.set_flattened(x)
     new_f_val = f()
     print 'Optimized %s; improvement: %g' % (param_name, new_f_val - old_f_val)
