@@ -58,6 +58,10 @@ def main(argv=None):
         writer.write_doc(doc_data, name=name)
     writer.close()
 
+    wordlist_path = options.output_file + '.wordlist'
+    print 'Writing wordlist to %s' % wordlist_path
+    with open(wordlist_path, 'w') as f:
+        f.writelines([s + '\n' for s in feature_ids])
 
 if __name__ == '__main__':
     main(sys.argv)
