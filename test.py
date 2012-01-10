@@ -5,29 +5,14 @@ from optimize import check_grad
 from io.corpus import CorpusReader
 from vem.model import VEMModel
 
-CORPUS_FILENAME = 'test.h5'
+CORPUS_FILENAME = 'nips-425D.h5'
 
 reader = CorpusReader(CORPUS_FILENAME, data_series='sam')
 model = VEMModel(reader)
 
-print 'Update vAlpha'
-model.update_valpha()
-
-print 'Update vMu'
-model.update_vmu()
-
-print 'Update vM'
-model.update_vm()
-
-print 'Update M'
-model.update_m()
-
-print 'Update xi'
-model.update_xi()
-
-print 'Update alpha'
-model.update_alpha()
-
+while True:
+    model.run_one_iteration()
+    model.print_topics()
 
 
 
