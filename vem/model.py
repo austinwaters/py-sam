@@ -1,5 +1,6 @@
 import numpy as np
 from scipy.special import gammaln, psi, polygamma
+import sys
 
 from pickle_file_io import PickleFileIO
 from math_util import *
@@ -14,7 +15,7 @@ class VEMModel(PickleFileIO):
 
         # Set up a reader to access the corpus.  This gives the data dimensionality (D), the number of documents,
         # the number of data, the number of document classes, and the document labels (as well as whether a
-        # document was observed).
+        # document label was observed).
         self.reader = reader
         self.corpus_file = self.reader.filename
         self.V = self.reader.dim  # Vocab size
@@ -23,9 +24,7 @@ class VEMModel(PickleFileIO):
         self.num_docs = self.reader.num_docs
 
         # For efficiency, read the corpus into memory
-        self.v = np.empty((self.V, self.num_docs))
-        for d in xrange(self.num_docs):
-            self.v[:, d] = self.reader.read_doc(d).T
+        self.load_corpus_as_matrix()
 
         # Variational parameters
         self.alpha = np.ones(self.T)*1.0 + 1.0
@@ -47,6 +46,16 @@ class VEMModel(PickleFileIO):
         self.__dict__.update(state)
         # Reset corpus_file just in case the reader loads the corpus from a different directory
         self.corpus_file = self.reader.filename
+        self.load_corpus_as_matrix()
+
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        del state['v']
+
+    def load_corpus_as_matrix(self):
+        self.v = np.empty((self.V, self.num_docs))
+        for d in xrange(self.num_docs):
+            self.v[:, d] = self.reader.read_doc(d).T
 
     def l_valpha(self):
         alpha0 = np.sum(self.alpha)
@@ -293,3 +302,54 @@ class VEMModel(PickleFileIO):
 
         optimize.optimize_parameter(self, 'vmu', f, g, bounds=(-1.0, 1.0))
         self.vmu = l2_normalize(self.vmu)  # Renormalize
+
+    def run_one_iteration(self):
+        print 'Updating vAlpha'
+        self.update_valpha()
+
+        print 'Updating vMu'
+        self.update_vmu()
+
+        print 'Updating vM'
+        self.update_vm()
+
+        print 'Updating M'
+        self.update_m()
+
+        print 'Updating xi'
+        self.update_xi()
+
+        print 'Updating alpha'
+        self.update_alpha()
+
+        self.iteration += 1
+
+    def print_topics(self, num_top_words=10, num_bottom_words=10, f=None):
+        if f is None:
+            f = sys.stdout
+
+        wordlist = open(self.corpus_file + '.wordlist').readlines()  # TODO: not hardcode this?
+        wordlist = np.array([each.strip() for each in wordlist], str)
+
+        for t in range(self.T):
+            print >>f, 'Topic %d' % t
+            print >>f, '--------'
+
+            sorted_indices = np.argsort(self.vmu[:, t])
+            sorted_weights = self.vmu[sorted_indices, t]
+            sorted_words = wordlist[sorted_indices]
+
+            print >>f, 'Top weighted words:'
+            for word, weight in zip(sorted_words[:-num_top_words:-1], sorted_weights[:-num_top_words:-1]):
+                print >>f, '  %.4f %s' % (weight, word)
+
+            print
+            print >>f, 'Bottom weighted words:'
+            for word, weight in zip(sorted_words[:num_bottom_words], sorted_weights[:num_bottom_words]):
+                print >>f, '  %.4f %s' % (weight, word)
+
+            print
+            print
+
+        if f is not sys.stdout:
+            f.close()
