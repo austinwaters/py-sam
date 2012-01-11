@@ -6,6 +6,7 @@ from condor.condorizable import Condorizable
 from io.corpus import CorpusReader
 from vem.model import VEMModel
 
+SAVE_MODEL_INTERVAL = 10
 
 class VEMTask(Condorizable):
     binary = Condorizable.path_to_script(__file__)
@@ -43,6 +44,10 @@ class VEMTask(Condorizable):
         while model.iteration < options.iterations:
             print '** Iteration %d **' % model.iteration
             model.run_one_iteration()
+
+            if model.iteration % SAVE_MODEL_INTERVAL == 0:
+                print 'Saving model snapshot...'
+                model.save(options.model)
 
         if options.write_topic_weights:
             print 'Writing topic weights to %s' % options.write_topic_weights
