@@ -353,3 +353,22 @@ class VEMModel(PickleFileIO):
 
         if f is not sys.stdout:
             f.close()
+
+    def write_topic_weights_arff(self, f=None):
+        if f is None:
+            f = sys.stdout
+
+        mean_topic_weights = self.valpha / asrowvector(np.sum(self.valpha, axis=0))
+
+        print >>f, '@RELATION topicWeights'
+        for t in range(self.T):
+            print >>f, '@ATTRIBUTE topic%d NUMERIC' % t
+        print >>f, '@ATTRIBUTE class {%s}' % ','.join(self.reader.class_names)
+
+        for d in range(self.num_docs):
+            weights_string = ', '.join([str(each) for each in mean_topic_weights[:, d]])
+            label = self.reader.raw_labels[d]
+            print >>f, '%s, %s' % (weights_string, label)
+
+        if f is not sys.stdout:
+            f.close()
