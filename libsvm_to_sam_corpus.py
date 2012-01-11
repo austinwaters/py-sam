@@ -5,26 +5,9 @@ import re
 import sys
 
 from io.corpus import CorpusWriter
+from io.libsvm import load_libsvm
 
 from math_util import l2_normalize
-
-
-def load_libsvm(filename):
-    result = {}
-    for line in open(filename):
-        tokens = re.split('\s+', line.strip())
-        if len(tokens) == 0:
-            continue
-
-        name = tokens[0]
-        feature_counts = {}
-        for s in tokens[1:]:
-            feature_id, count = s.split(':')
-            feature_counts[feature_id] = int(count)
-        result[name] = feature_counts
-    return result
-
-
 
 
 def main(argv=None):
