@@ -51,6 +51,7 @@ class VEMModel(PickleFileIO):
     def __getstate__(self):
         state = self.__dict__.copy()
         del state['v']
+        return state
 
     def load_corpus_as_matrix(self):
         self.v = np.empty((self.V, self.num_docs))
