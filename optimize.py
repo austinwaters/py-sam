@@ -65,7 +65,7 @@ def check_grad(model, param_name, f, g):
     return scipy_check_grad(eval_f, eval_g, x0)
 
 
-def optimize_parameter(model, param_name, f, g, bounds=(1e-4, None), disp=0, max_evals=100):
+def optimize_parameter_tnc(model, param_name, f, g, bounds=(1e-4, None), disp=0, max_evals=100, method='lbfgs'):
     from scipy.optimize import fmin_tnc
 
     p = ModelParameterAcessor(model, param_name)
@@ -86,6 +86,38 @@ def optimize_parameter(model, param_name, f, g, bounds=(1e-4, None), disp=0, max
 
     old_f_val = -f()
     x, nfeval, rc = fmin_tnc(negative_f_and_f_prime, x0=x0, bounds=bounds, disp=disp, maxfun=max_evals)
+    p.set_flattened(x)
+    new_f_val = -f()
+    print 'Optimized %s; improvement: %g' % (param_name, new_f_val - old_f_val)
+
+
+def optimize_parameter(model, param_name, f, g, bounds=(1e-4, None), disp=0, max_evals=100):
+    from scipy.optimize import fmin_l_bfgs_b
+
+    p = ModelParameterAcessor(model, param_name)
+
+    # Scipy expects function parameters to be 1d, so we have to ravel/unravel the parameter values for each
+    # evaluation
+    def eval_f(param_as_list):
+        old_value = p.get()  # Save old
+        p.set_flattened(param_as_list) # Set new
+        f_val = f()
+        p.set(old_value)  # Restore old value
+        return -f_val
+
+    def eval_g(param_as_list):
+        old_value = p.get()  # Save old
+        p.set_flattened(param_as_list) # Set new
+        g_val = ravel(g())
+        p.set(old_value)  # Restore old value
+        return -g_val
+
+    x0 = ravel(p.get())
+    #bounds = [(1e-4, None) for each in x0]  # Keep the parameter positive
+    bounds = [bounds] * len(x0)
+
+    old_f_val = f()
+    x, new_f_val, d = fmin_l_bfgs_b(eval_f, x0, fprime=eval_g, bounds=bounds, maxfun=max_evals, disp=disp)
     p.set_flattened(x)
     new_f_val = f()
     print 'Optimized %s; improvement: %g' % (param_name, new_f_val - old_f_val)
