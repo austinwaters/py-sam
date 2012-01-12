@@ -365,6 +365,7 @@ class VEMModel(PickleFileIO):
         for t in range(self.T):
             print >>f, '@ATTRIBUTE topic%d NUMERIC' % t
         print >>f, '@ATTRIBUTE class {%s}' % ','.join(self.reader.class_names)
+        print >>f, '@DATA'
 
         for d in range(self.num_docs):
             weights_string = ', '.join([str(each) for each in mean_topic_weights[:, d]])
