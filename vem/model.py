@@ -61,16 +61,12 @@ class VEMModel(PickleFileIO):
     def l_valpha(self):
         alpha0 = np.sum(self.alpha)
         psi_valpha = psi(self.valpha)
-
-        valpha0s = self.valpha.sum(axis=0)  # Sum of each document's valpha vector
+        valpha0s = self.valpha.sum(axis=0)
         psi_valpha0s = psi(valpha0s)
-
-        # XXX: direct translation from matlab; probably not necessary with np broadcasting
-        alpha_minus_one_matrix = np.tile(ascolvector(self.alpha - 1.0), [1, self.D])
-
         sum_of_rhos = np.sum(self.rho_batch())
 
-        like = (alpha_minus_one_matrix * psi_valpha).sum() \
+        # (alpha_minus_one_matrix * psi_valpha).sum() \
+        like = np.dot(asrowvector(self.alpha - 1.0), psi_valpha).sum() \
             - (alpha0 - self.T)*psi_valpha0s.sum() \
             + self.D*gammaln(alpha0) \
             - self.D*gammaln(self.alpha).sum() \
