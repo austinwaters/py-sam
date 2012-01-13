@@ -7,6 +7,7 @@ from io.corpus import CorpusReader
 from vem.model import VEMModel
 
 SAVE_MODEL_INTERVAL = 10
+SAVE_TOPICS_INTERVAL = 10
 
 class VEMTask(Condorizable):
     binary = Condorizable.path_to_script(__file__)
@@ -19,6 +20,7 @@ class VEMTask(Condorizable):
         parser.add_argument('-T', '--T', type=int, default=10, help='Number of topics')
         parser.add_argument('--iterations', type=int, default=500, help='Run VEM for <n> iterations')
         parser.add_argument('--write_topic_weights', type=str, help='Write topic weights to <path>')
+        parser.add_argument('--write_topics', type=str, help='Write topics to <path>')
         options = parser.parse_args(argv[1:])
 
         # If the model doesn't already exist (we're creating a new one), we need to know where the corpus lives
@@ -49,12 +51,27 @@ class VEMTask(Condorizable):
                 print 'Saving model snapshot...'
                 model.save(options.model)
 
+            if model.iteration % SAVE_TOPICS_INTERVAL == 0:
+                if options.write_topics:
+                    print 'Saving topics to %s' % options.write_topics
+                    with open(options.write_topics, 'w') as f:
+                        model.write_topics(f)
+
+                if options.write_topic_weights:
+                    print 'Saving topic weights to %s' % options.write_topic_weights
+                    with open(options.write_topic_weights, 'w') as f:
+                        model.write_topic_weights_arff(f)
+
+        if options.write_topics:
+            print 'Saving topics to %s' % options.write_topics
+            with open(options.write_topics, 'w') as f:
+                model.write_topics(f)
+
         if options.write_topic_weights:
-            print 'Writing topic weights to %s' % options.write_topic_weights
+            print 'Saving topic weights to %s' % options.write_topic_weights
             with open(options.write_topic_weights, 'w') as f:
                 model.write_topic_weights_arff(f)
         model.save(options.model)
-
 
 if __name__ == '__main__':
     VEMTask(sys.argv)
