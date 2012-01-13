@@ -150,9 +150,11 @@ class VEMModel(PickleFileIO):
         second_term = np.sum(per_doc_weights * second_term_doc_weights) * self.vmu
 
         # Last term in GradESN times per-doc factors from GradRhoVMu...
-        third_term_doc_weights = 2*a_xi_squared / (valpha0s*(valpha0s+1))  # From GradESN
-        rescaled_valphas = self.valpha * asrowvector(np.sqrt(per_doc_weights * third_term_doc_weights))
-        third_term = np.dot(self.vmu, np.dot(rescaled_valphas, rescaled_valphas.T))
+        third_term_doc_weights = per_doc_weights * 2*a_xi_squared / (valpha0s*(valpha0s+1))  # From GradESN
+        # Instead of
+        #rescaled_valphas = self.valpha * asrowvector(np.sqrt(third_term_doc_weights))
+        #third_term = np.dot(self.vmu, np.dot(rescaled_valphas, rescaled_valphas.T))
+        third_term = np.dot(self.vmu, np.dot(self.valpha * asrowvector(third_term_doc_weights), self.valpha.T))
 
         sum_over_documents = first_term - second_term - third_term
         return ascolvector(a_xi*a_k0*self.xi*self.vm) + self.kappa1*sum_over_documents
@@ -299,7 +301,7 @@ class VEMModel(PickleFileIO):
 
         def g():
             squared_norms = np.sum(self.vmu ** 2, axis=0)
-            return self.tangent_grad_l_vmu() - LAMBDA*np.sum(2.0*(squared_norms - 1.0)*(2.0*self.vmu))
+            return self.tangent_grad_l_vmu() - LAMBDA*2.0*(squared_norms - 1.0)*(2.0*self.vmu)
 
         optimize.optimize_parameter(self, 'vmu', f, g, bounds=(-1.0, 1.0))
         self.vmu = l2_normalize(self.vmu)  # Renormalize
