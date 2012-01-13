@@ -346,13 +346,13 @@ class VEMModel(PickleFileIO):
             for word, weight in zip(sorted_words[:-num_top_words:-1], sorted_weights[:-num_top_words:-1]):
                 print >>f, '  %.4f %s' % (weight, word)
 
-            print
+            print >>f
             print >>f, 'Bottom weighted words:'
             for word, weight in zip(sorted_words[:num_bottom_words], sorted_weights[:num_bottom_words]):
                 print >>f, '  %.4f %s' % (weight, word)
 
-            print
-            print
+            print >>f
+            print >>f
 
         if f is not sys.stdout:
             f.close()
