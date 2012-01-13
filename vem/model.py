@@ -327,7 +327,7 @@ class VEMModel(PickleFileIO):
 
         self.iteration += 1
 
-    def print_topics(self, num_top_words=10, num_bottom_words=10, f=None):
+    def write_topics(self, f=None, num_top_words=10, num_bottom_words=10):
         if f is None:
             f = sys.stdout
 
