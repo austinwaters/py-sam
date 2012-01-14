@@ -275,7 +275,7 @@ class VEMModel(PickleFileIO):
         self.m = l2_normalize(np.sum(self.vmu, axis=1))  # Sum across topics
 
     def update_valpha(self):
-        optimize.optimize_parameter_lbfgs(self, 'valpha', self.l_valpha, self.grad_l_valpha)
+        optimize.optimize_parameter(self, 'valpha', self.l_valpha, self.grad_l_valpha)
 
     def update_alpha(self):
         optimize.optimize_parameter(self, 'alpha', self.l_alpha, self.grad_l_alpha)
