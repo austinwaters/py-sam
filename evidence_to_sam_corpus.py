@@ -3,9 +3,9 @@ from itertools import chain
 import numpy as np
 import sys
 
-from io.corpus import CorpusWriter
-from io.evidence import load_evidence_file
-from io import labelers
+from corpus.corpus import CorpusWriter
+from corpus.evidence import load_evidence_file
+from corpus import labelers
 
 from math_util import l2_normalize
 

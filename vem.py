@@ -3,7 +3,7 @@ import os
 import sys
 
 from condor.condorizable import Condorizable
-from io.corpus import CorpusReader
+from corpus.corpus import CorpusReader
 from vem.model import VEMModel
 
 SAVE_MODEL_INTERVAL = 10

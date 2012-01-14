@@ -8,7 +8,7 @@ def profile_it(profile_filename, f, *args):
 def print_profile_data(filename):
     import hotshot.stats
     stats = hotshot.stats.load(filename)
-    stats.strip_dirs()
+    #stats.strip_dirs()
     stats.sort_stats('time', 'calls')
     stats.print_stats()
     print '--Callers--'

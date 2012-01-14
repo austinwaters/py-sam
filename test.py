@@ -2,7 +2,7 @@ import numpy as np
 from math_util import avk, deriv_avk
 from optimize import check_grad
 
-from io.corpus import CorpusReader
+from corpus.corpus import CorpusReader
 from vem.model import VEMModel
 
 CORPUS_FILENAME = 'nips-425D.h5'
