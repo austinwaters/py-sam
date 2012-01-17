@@ -46,3 +46,7 @@ def main(argv=None):
         writer.write_doc(normalized_descriptor, name=filename, label=doc_label)
 
     writer.close()
+
+
+if __name__ == '__main__':
+    main(sys.argv)
