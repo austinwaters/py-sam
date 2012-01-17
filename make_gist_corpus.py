@@ -4,7 +4,7 @@ import sys
 from corpus import labelers
 from corpus.corpus import CorpusWriter
 from vision.gist import grayscale_gist
-from math_util import l2_normalize
+from math_util import l2_normalize, ascolvector
 
 
 def main(argv=None):
@@ -43,7 +43,7 @@ def main(argv=None):
 
         normalized_descriptor = l2_normalize(descriptor)
         doc_label = labeler(filename) if labeler else None
-        writer.write_doc(normalized_descriptor, name=filename, label=doc_label)
+        writer.write_doc(ascolvector(normalized_descriptor), name=filename, label=doc_label)
 
     writer.close()
 
