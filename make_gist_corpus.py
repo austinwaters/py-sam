@@ -15,7 +15,7 @@ def main(argv=None):
     parser.add_argument('file_list', type=str, help='File containing list of images to process')
     parser.add_argument('dest_corpus', type=str, help='Path to write GIST corpus')
     parser.add_argument('--labeler', type=str, help='Labeler to apply')
-    options = parser.parse_args(argv)
+    options = parser.parse_args(argv[1:])
 
     labeler = None
     if options.labeler is None:
