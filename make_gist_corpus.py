@@ -18,6 +18,7 @@ class MakeGistCorpusTask(Condorizable):
         parser.add_argument('file_list', type=str, help='File containing list of images to process')
         parser.add_argument('dest_corpus', type=str, help='Path to write GIST corpus')
         parser.add_argument('--labeler', type=str, help='Labeler to apply')
+        parser.add_argument('--color', action='store_true', help='Color GIST?')
         options = parser.parse_args(argv[1:])
 
         if options.labeler is None:
@@ -44,7 +45,7 @@ class MakeGistCorpusTask(Condorizable):
             filename = filename.strip()
             print 'Processing image %d/%d' % (i+1, len(filenames))
 
-            descriptor = grayscale_gist(filename)
+            descriptor = color_gist(filename) if options.color else grayscale_gist(filename)
             if writer is None:
                 dim = descriptor.size
                 writer = CorpusWriter(options.dest_corpus, data_series='sam', dim=dim)
