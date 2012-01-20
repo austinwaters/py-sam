@@ -31,6 +31,11 @@ class VEMTask(Condorizable):
                 parser.error('Corpus file %s does not exist!' % options.corpus)
 
         self.add_output_file(options.model)
+        if options.write_topic_weights:
+            self.add_output_file(options.write_topic_weights)
+        if options.write_topics:
+            self.add_output_file(options.write_topics)
+
         return options
 
     def run(self, options):
