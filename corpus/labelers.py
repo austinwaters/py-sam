@@ -13,7 +13,7 @@ def twenty_news(name):
     return parts[1]
 
 
-def thirteen_scene(name):
+def dirname(name):
     # Ex. /foo/bar/bedroom/image_0001.jpg.png => bedroom
     return os.path.basename(os.path.dirname(os.path.abspath(name)))
 
@@ -21,5 +21,6 @@ def thirteen_scene(name):
 # Register labelers here so they can be referenced by name on the command line
 registry = {
     '20news':twenty_news,
-    '13scene':thirteen_scene,
+    '13scene':dirname,
+    'dirname':dirname,
 }
