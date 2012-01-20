@@ -8,3 +8,7 @@ def grayscale_gist(image_filename):
     descriptors = leargist.color_gist(im)
 
     return descriptors[:descriptors.size/3]
+
+def color_gist(image_filename):
+    im = Image.open(image_filename)
+    return leargist.color_gist(im)
