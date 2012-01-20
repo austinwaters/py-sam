@@ -4,7 +4,7 @@ import sys
 
 from corpus import labelers
 from corpus.corpus import CorpusWriter
-from vision.gist import grayscale_gist
+from vision.gist import color_gist, grayscale_gist
 from math_util import l2_normalize, ascolvector
 
 from condor.condorizable import Condorizable
