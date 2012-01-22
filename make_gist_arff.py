@@ -44,7 +44,7 @@ class MakeGistArffTask(Condorizable):
         self.add_output_file(options.dest)
         return options
 
-    def run_write_arff(self, options):
+    def run(self, options):
         labeler = labelers.registry[options.labeler]
 
         # Wait to instantiate the corpus writer until we know the dimensionality of the descriptors we'll be writing
