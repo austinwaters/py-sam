@@ -7,7 +7,7 @@ class ArffWriter(object):
         assert class_list is not None
         self.filename = filename
         self.relation_name = relation_name
-        self.dim = self.dim
+        self.dim = dim
         self.class_list = [str(each) for each in class_list]
 
         self.f = open(self.filename, 'w')
