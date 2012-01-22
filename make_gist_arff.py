@@ -53,7 +53,7 @@ class MakeGistArffTask(Condorizable):
         class_list = sorted(set(labels))
 
         writer = ArffWriter(options.dest, class_list=class_list)
-        print 'Writing GIST data to %s' % options.dest_corpus
+        print 'Writing GIST data to %s' % options.dest
 
         for i, (filename, label) in enumerate(izip(filenames, labels)):
             filename = filename.strip()
