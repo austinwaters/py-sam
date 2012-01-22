@@ -20,6 +20,7 @@ class ArffWriter(object):
         # XXX: we're assuming targets will always be categorical class labels
         print >>self.f, '@ATTRIBUTE class {%s}' % ','.join(self.class_list)
         print >>self.f, '@DATA'
+        self.header_written = True
 
     def write_example(self, example, target):
         if self.f is None:
