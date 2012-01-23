@@ -77,7 +77,7 @@ def get_cv_results_filename(config):
     """
     Constructs the weka results file from the rest of the weka config.
     """
-    base = os.path.splitext(config['arff'])[0]
+    base = os.path.splitext(config['data'])[0]
     classifier_parts = config['classifier'].split()
     classifier_class, classifier_options = classifier_parts[0], classifier_parts[1:]
     classifier_name = classifier_class.split('.')[-1]  # e.g. SimpleLogistic, IBk
