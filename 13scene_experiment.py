@@ -1,6 +1,15 @@
+"""
+Run the full 13scene pipeline:  corpus -> sam topic weights -> classification results
+
+We use the following path conventions:
+Model filename:  <corpus>--<topics>T.model
+Topic weights filename:  <corpus>--<topics>T.arff
+Weka results:  <corpus>--<topics>T--<classifier>.results
+"""
+
 from argparse import ArgumentParser
 import inspect
-from itertools import product
+from itertools import product, chain
 import os
 import sys
 from condor.condorizable import Condorizable
@@ -20,12 +29,8 @@ def dict_product(config):
         yield d
 
 
-"""
-Functions to dynamically generate parts of the config for SAM.  We use the following path conventions:
-Model filename:  <corpus>--<topics>T.model
-Topic weights filename:  <corpus>--<topics>T.arff
-Weka results:  <corpus>--<topics>T--<classifier>.results
-"""
+#------------------------------------------------------------------------------
+# SAM
 
 def get_topic_weight_filename(config):
     """
@@ -72,7 +77,9 @@ def run_sam():
         VEMTask(kw=job_settings)
 
 
-# Functions for constructing configs for running cross-validation
+#------------------------------------------------------------------------------
+# Run classifiers
+
 def get_cv_results_filename(config):
     """
     Constructs the weka results file from the rest of the weka config.
@@ -86,13 +93,23 @@ def get_cv_results_filename(config):
     # e.g. 13scene-gist.SimpleLogistic-K5.results
     return '%s.%s%s.results' % (base, classifier_name, options_desc)
 
-cv_config = {
-    'classifier':['weka.classifiers.lazy.IBk', 'weka.classifiers.functions.SimpleLogistic'],
+# K-NN
+knn_configs = {
+    'classifier':['weka.classifiers.lazy.IBk'],
+    'flags':['-K 5', '-K 10', '-K 15'],
     'data':[each['write_topic_weights'] for each in vem_configs],
     'results':[get_cv_results_filename],
     'condor':['']
-    }
-cv_configs = list(dict_product(cv_config))
+}
+# Logistic regression
+lr_configs = {
+    'classifier':['weka.classifiers.functions.SimpleLogistic'],
+    'data':[each['write_topic_weights'] for each in vem_configs],
+    'results':[get_cv_results_filename],
+    'condor':['']
+}
+# All classifier configs
+cv_configs = chain(dict_product(knn_configs), dict_product(lr_configs))
 
 
 def run_cv():
@@ -100,6 +117,8 @@ def run_cv():
         print 'CV', job_settings
         CrossValidationTask(kw=job_settings)
 
+
+#------------------------------------------------------------------------------
 
 tasks = {
     'sam':run_sam,
@@ -113,4 +132,3 @@ if __name__ == '__main__':
 
     # Run the task
     tasks[options.task]()
-
