@@ -22,6 +22,7 @@ class CrossValidationTask(Condorizable):
     def check_args(self, argv):
         parser = ArgumentParser()
         parser.add_argument('--classifier', type=str, required=True, help='Classifier to run')
+        parser.add_argument('--flags', type=str, help='(optional) classifier flags')
         parser.add_argument('--data', type=str, required=True, help='Path to arff dataset')
         parser.add_argument('--results', type=str, required=True, help='Save results to <path>')
 
@@ -39,11 +40,9 @@ class CrossValidationTask(Condorizable):
 
     def run(self, options):
         cv_jar_path = self.find_cross_validation_jar_or_die()
-        classifier_parts = options.classifier.split()
-        classifier_class = classifier_parts[0]
-        classifier_options = classifier_parts[1:]
-        command = ['java', '-jar', cv_jar_path, '-classifier', classifier_class, '-data', options.data] \
-                  + classifier_options
+        classifier_flags = [] if options.flags is None else options.flags.split()
+        command = ['java', '-jar', cv_jar_path, '-classifier', options.classifier, '-data', options.data] \
+                  + classifier_flags
         output = subprocess.check_output(command)
         with open(options.results, 'w') as f:
             f.write(output)
