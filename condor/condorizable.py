@@ -48,6 +48,17 @@ Error =  %s
 stream_error = True
 """
 
+def kwargs_to_argv(kw):
+    argv = []
+    for k, v in kw.items():
+        if v == '':
+            argv.append('--%s' % k)
+        elif type(v) == str:
+            argv.append("--%s='%s'" % (k, v))
+        else:
+            argv.append('--%s=%s' % (k, v))
+    return argv
+
 
 class Condorizable(object):
     CONDOR_FLAG = '--condor'
@@ -70,7 +81,7 @@ class Condorizable(object):
             raise Exception('Unable to locate binary %s for condorizable job' % self.binary)
             
         if kw is not None:
-            argv = [self.binary] + [v!='' and '--%s=%s' % (k,v) or '--%s' % k for k,v in kw.items()]
+            argv = [self.binary] + kwargs_to_argv(kw)
         elif argv is not None:
             argv = list(argv)
 
