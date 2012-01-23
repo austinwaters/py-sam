@@ -30,6 +30,7 @@ class CrossValidationTask(Condorizable):
         options = parser.parse_args(argv[1:])
         if not os.path.exists(options.data):
             parser.error('Data file %s does not exist!' % options.data)
+        self.add_output_file(options.results)
         return options
 
     def find_cross_validation_jar_or_die(self):
