@@ -17,7 +17,7 @@ class CrossValidationTask(Condorizable):
     confidence interval are written to foo.results.
 
     """
-    binary = Condorizable.path_to_script(__file__)
+    binary = Condorizable.path_to_script('../cv.py')
 
     def check_args(self, argv):
         parser = ArgumentParser()
