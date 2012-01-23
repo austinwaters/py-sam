@@ -57,7 +57,7 @@ def run_sam():
     Runs SAM on every experimental configuration defined by 'config'.  Jobs that have already been run or are
     current running (i.e. for which the model file already exists, or for which a lock file exists) will be skipped.
     """
-    for job_settings in dict_product(vem_configs):
+    for job_settings in vem_configs:
         print 'SAM', job_settings
 
         model_file = job_settings['model']
@@ -96,7 +96,7 @@ cv_configs = list(dict_product(cv_config))
 
 
 def run_cv():
-    for job_settings in dict_product(cv_configs):
+    for job_settings in cv_configs:
         print 'CV', job_settings
         CrossValidationTask(kw=job_settings)
 
