@@ -57,8 +57,7 @@ def kwargs_to_argv(kw):
         elif type(v) == str:
             argv.append('--%s' % k)
             # TODO: escape double quotes and other things that might be in v that condor doesn't like.
-            # kwargs -> argv list -> string (in condor file) -> argv list
-            argv.append("'%s'" % v)
+            argv.append('%s' % v)
         else:
             argv.append('--%s=%s' % (k, v))
     return argv
