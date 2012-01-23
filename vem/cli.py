@@ -10,7 +10,7 @@ SAVE_TOPICS_INTERVAL = 10
 
 
 class VEMTask(Condorizable):
-    binary = Condorizable.path_to_script('../vem.py')
+    binary = 'vem.py'
 
     def check_args(self, argv):
         parser = ArgumentParser()
