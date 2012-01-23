@@ -1,7 +1,7 @@
 """
-Run the full 13scene pipeline:  corpus -> sam topic weights -> classification results
+Run the full 8scene pipeline:  corpus -> sam topic weights -> classification results
 
-We use the following path conventions:
+Path conventions:
 Model filename:  <corpus>--<topics>T.model
 Topic weights filename:  <corpus>--<topics>T.arff
 Weka results:  <corpus>--<topics>T--<classifier>.results
@@ -15,7 +15,7 @@ from experiment_utils import *
 # SAM
 vem_config = {
     'model':[get_model_filename],
-    'corpus':['13scene-gist.h5', '13scene-color-gist.h5'],
+    'corpus':['8scene-gist.h5', '8scene-color-gist.h5'],
     'T':[10, 20, 30, 40, 50, 60, 70],
     'iterations':[100],
     'write_topic_weights':[get_topic_weight_filename],
