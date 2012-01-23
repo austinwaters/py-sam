@@ -70,7 +70,7 @@ class Condorizable(object):
             raise Exception('Unable to locate binary %s for condorizable job' % self.binary)
             
         if kw is not None:
-            argv = [self.binary] + [v!='' and '--%s="%s"' % (k,v) or '--%s' % k for k,v in kw.items()]
+            argv = [self.binary] + [v!='' and '--%s=%s' % (k,v) or '--%s' % k for k,v in kw.items()]
         elif argv is not None:
             argv = list(argv)
 
