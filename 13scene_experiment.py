@@ -94,7 +94,7 @@ def get_cv_results_filename(config):
 # K-NN
 knn_configs = {
     'classifier':['weka.classifiers.lazy.IBk'],
-    'flags':['"-K 5"', '"-K 10"', '"-K 15"'],
+    'flags':['-K 5', '-K 10', '-K 15'],
     'data':[each['write_topic_weights'] for each in vem_configs],
     'results':[get_cv_results_filename],
     'condor':['']
