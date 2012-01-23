@@ -15,9 +15,9 @@ class CrossValidationTask(Condorizable):
 
     def check_args(self, argv):
         parser = ArgumentParser()
-        parser.add_argument('classifier', type='str', help='Classifier to run')
-        parser.add_argument('data', type='str', help='Path to arff dataset')
-        parser.add_argument('results', type='str', help='Save results to <path>')
+        parser.add_argument('classifier', type=str, help='Classifier to run')
+        parser.add_argument('data', type=str, help='Path to arff dataset')
+        parser.add_argument('results', type=str, help='Save results to <path>')
 
         options = parser.parse_args(argv[1:])
         if not os.path.exists(options.data):
