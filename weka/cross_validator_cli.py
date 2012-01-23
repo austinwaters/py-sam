@@ -4,18 +4,19 @@ import subprocess
 import sys
 from condor.condorizable import Condorizable
 
-JAR_FILENAME = 'cross-validator.jar'
+# Path to the jar relative to the binary
+CV_JAR_PATH = 'weka/cross-validator.jar'
 
 
 class CrossValidationTask(Condorizable):
     """
-    Python wrapper around weka cross-validation.
+    Python wrapper around weka cross-validation.  This wrapper is Condorizable, so that CV jobs can be started on condor
+    both from the command-line and programatically through python (by calling CrossValidationTask(kw=...)).
 
     Example:
-        cross_validator_cli.py 'weka.classifiers.lazy.IBk -k 10' foo.arff foo.results
+        cross_validator_cli.py --classifier weka.classifiers.lazy.IBk --flags '-k 10' --data foo.arff --results foo.results
     runs cross-validation of a k-nearest neighbors classifier on the dataset foo.arff.  The mean accuracy and
     confidence interval are written to foo.results.
-
     """
     binary = 'cv.py'
 
@@ -32,11 +33,11 @@ class CrossValidationTask(Condorizable):
         return options
 
     def find_cross_validation_jar_or_die(self):
-        path = os.path.join(os.path.dirname(self.binary), JAR_FILENAME)
+        path = os.path.join(os.path.dirname(self.binary), CV_JAR_PATH)
         if os.path.isfile(path):
             return path
         else:
-            raise Exception('Cannot locate %s; aborting' % JAR_FILENAME)
+            raise Exception('Cannot locate %s; aborting' % CV_JAR_PATH)
 
     def run(self, options):
         cv_jar_path = self.find_cross_validation_jar_or_die()

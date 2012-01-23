@@ -83,13 +83,10 @@ def get_cv_results_filename(config):
     Constructs the weka results file from the rest of the weka config.
     """
     base = os.path.splitext(config['data'])[0]
-    classifier_parts = config['classifier'].split()
-    classifier_class, classifier_options = classifier_parts[0], classifier_parts[1:]
-    classifier_name = classifier_class.split('.')[-1]  # e.g. SimpleLogistic, IBk
-    options_desc = ''.join(classifier_options)
-
+    classifier = config['classifier'].split('.')[-1]    # e.g. SimpleLogistic, IBk
+    classifier_options = config['flags'].replace(' ', '')
     # e.g. 13scene-gist.SimpleLogistic-K5.results
-    return '%s.%s%s.results' % (base, classifier_name, options_desc)
+    return '%s.%s%s.results' % (base, classifier, classifier_options)
 
 # K-NN
 knn_configs = {
@@ -112,7 +109,14 @@ cv_configs = chain(dict_product(knn_configs), dict_product(lr_configs))
 
 def run_cv():
     for job_settings in cv_configs:
-        print 'CV', job_settings
+        results_file = job_settings['results']
+        if os.path.exists(results_file):
+            print 'Warning: results file %s already exists; aborting' % results_file
+            continue
+        if Condorizable.is_locked(results_file):
+            print 'WARNING: Results file %s is locked; check that another job isn''t writing to this path' % \
+                  results_file
+            continue
         CrossValidationTask(kw=job_settings)
 
 
