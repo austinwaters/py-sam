@@ -15,6 +15,7 @@ run(options): given an options namespace, runs the task.
 
 import inspect
 import os
+import pipes
 import signal
 import sys
 from tempfile import mkstemp
@@ -54,7 +55,10 @@ def kwargs_to_argv(kw):
         if v == '':
             argv.append('--%s' % k)
         elif type(v) == str:
-            argv.append("--%s='%s'" % (k, v))
+            argv.append('--%s')
+            # TODO: escape double quotes and other things that might be in v that condor doesn't like.
+            # kwargs -> argv list -> string (in condor file) -> argv list
+            argv.append("'%s'" % v)
         else:
             argv.append('--%s=%s' % (k, v))
     return argv
@@ -182,7 +186,7 @@ class Condorizable(object):
 
     def run_on_condor(self, argv, requirements=None, log_output=False):
         executable = self.PYTHON
-        args = '-O ' + ' '.join(argv)
+        args = '-O ' + ' '.join([pipes.quote(each) for each in argv])
         current_dir = os.getcwd()
         requirements = 'InMastodon && (%s)' % requirements if requirements else 'InMastodon' 
 
