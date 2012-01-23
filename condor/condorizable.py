@@ -185,7 +185,8 @@ class Condorizable(object):
 
     def run_on_condor(self, argv, requirements=None, log_output=False):
         executable = self.PYTHON
-        args = '-O ' + ' '.join([pipes.quote(each) for each in argv])
+        # In condor file:  Arguments = "arg1 'arg2 with spaces' arg3"
+        args = '"' + '-O ' + ' '.join([pipes.quote(each) for each in argv]) + '"'
         current_dir = os.getcwd()
         requirements = 'InMastodon && (%s)' % requirements if requirements else 'InMastodon' 
 
