@@ -108,7 +108,7 @@ tasks = {
 
 if __name__ == '__main__':
     parser = ArgumentParser()
-    parser.add_argument('task', type=str, required=True, choices=tasks.keys())
+    parser.add_argument('task', type=str, choices=tasks.keys())
     options = parser.parse_args(sys.argv[1:])
 
     # Run the task
