@@ -81,7 +81,7 @@ def get_cv_results_filename(config):
     classifier_parts = config['classifier'].split()
     classifier_class, classifier_options = classifier_parts[0], classifier_parts[1:]
     classifier_name = classifier_class.split('.')[-1]  # e.g. SimpleLogistic, IBk
-    options_desc = classifier_options.join()
+    options_desc = ''.join(classifier_options)
 
     # e.g. 13scene-gist.SimpleLogistic-K5.results
     return '%s.%s%s.results' % (base, classifier_name, options_desc)
