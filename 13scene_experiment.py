@@ -84,7 +84,7 @@ def get_cv_results_filename(config):
     """
     base = os.path.splitext(config['data'])[0]
     classifier = config['classifier'].split('.')[-1]    # e.g. SimpleLogistic, IBk
-    classifier_options = config['flags'].replace(' ', '')
+    classifier_options = config['flags'].replace(' ', '') if 'flags' in config else ''
     # e.g. 13scene-gist.SimpleLogistic-K5.results
     return '%s.%s%s.results' % (base, classifier, classifier_options)
 
@@ -99,7 +99,6 @@ knn_configs = {
 # Logistic regression
 lr_configs = {
     'classifier':['weka.classifiers.functions.SimpleLogistic'],
-    'flags':[],
     'data':[each['write_topic_weights'] for each in vem_configs],
     'results':[get_cv_results_filename],
     'condor':['']
