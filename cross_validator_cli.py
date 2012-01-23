@@ -10,6 +10,12 @@ JAR_FILENAME = 'cross-validator.jar'
 class CrossValidationTask(Condorizable):
     """
     Python wrapper around weka cross-validation.
+
+    Example:
+        cross_validator_cli.py 'weka.classifiers.lazy.IBk -k 10' foo.arff foo.results
+    runs cross-validation of a k-nearest neighbors classifier on the dataset foo.arff.  The mean accuracy and
+    confidence interval are written to foo.results.
+
     """
     binary = Condorizable.path_to_script(__file__)
 
@@ -33,7 +39,11 @@ class CrossValidationTask(Condorizable):
 
     def run(self, options):
         cv_jar_path = self.find_cross_validation_jar_or_die()
-        command = ['java', '-jar', cv_jar_path, '-classifier', options.classifier, '-data', options.data]
+        classifier_parts = options.classifier.split()
+        classifier_class = classifier_parts[0]
+        classifier_options = classifier_parts[1:]
+        command = ['java', '-jar', cv_jar_path, '-classifier', classifier_class, '-data', options.data] \
+                  + classifier_options
         output = subprocess.check_output(command)
         with open(options.results, 'w') as f:
             f.write(output)
