@@ -49,7 +49,7 @@ def get_model_filename(config):
 vem_config = {
     'model':[get_model_filename],
     'corpus':['13scene-gist.h5', '13scene-color-gist.h5'],
-    'T':[10, 20, 30, 40, 50],
+    'T':[10, 20, 30, 40, 50, 60, 70],
     'iterations':[100],
     'write_topic_weights':[get_topic_weight_filename],
     'condor':[''],
