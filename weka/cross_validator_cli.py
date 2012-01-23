@@ -50,8 +50,16 @@ class CrossValidationTask(Condorizable):
             f.write(output)
 
 
-if __name__ == '__main__':
-    CrossValidationTask(sys.argv)
-
+def run_cv_batch(cv_configs):
+    for job_settings in cv_configs:
+        results_file = job_settings['results']
+        if os.path.exists(results_file):
+            print 'Warning: results file %s already exists; aborting' % results_file
+            continue
+        if Condorizable.is_locked(results_file):
+            print 'WARNING: Results file %s is locked; check that another job isn''t writing to this path' %\
+                  results_file
+            continue
+        CrossValidationTask(kw=job_settings)
 
 

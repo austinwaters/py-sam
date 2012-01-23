@@ -77,3 +77,21 @@ class VEMTask(Condorizable):
             with open(options.write_topic_weights, 'w') as f:
                 model.write_topic_weights_arff(f)
         model.save(options.model)
+
+
+def run_sam_batch(vem_configs):
+    """
+    Runs SAM on every experimental configuration defined by 'config'.  Jobs that have already been run or are
+    current running (i.e. for which the model file already exists, or for which a lock file exists) will be skipped.
+    """
+    for job_settings in vem_configs:
+        model_file = job_settings['model']
+        if os.path.exists(model_file):
+            print 'WARNING: Model %s already exists; skipping' % os.path.basename(model_file)
+            continue
+        if Condorizable.is_locked(model_file):
+            print 'WARNING: Model %s is locked; check that another job isn''t writing to this path' %\
+                  os.path.basename(model_file)
+            continue
+
+        VEMTask(kw=job_settings)
