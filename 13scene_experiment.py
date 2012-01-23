@@ -63,8 +63,6 @@ def run_sam():
     current running (i.e. for which the model file already exists, or for which a lock file exists) will be skipped.
     """
     for job_settings in vem_configs:
-        print 'SAM', job_settings
-
         model_file = job_settings['model']
         if os.path.exists(model_file):
             print 'WARNING: Model %s already exists; skipping' % os.path.basename(model_file)
@@ -96,7 +94,7 @@ def get_cv_results_filename(config):
 # K-NN
 knn_configs = {
     'classifier':['weka.classifiers.lazy.IBk'],
-    'flags':['-K 5', '-K 10', '-K 15'],
+    'flags':['"-K 5"', '"-K 10"', '"-K 15"'],
     'data':[each['write_topic_weights'] for each in vem_configs],
     'results':[get_cv_results_filename],
     'condor':['']
