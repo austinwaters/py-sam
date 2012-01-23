@@ -99,6 +99,7 @@ knn_configs = {
 # Logistic regression
 lr_configs = {
     'classifier':['weka.classifiers.functions.SimpleLogistic'],
+    'flags':[],
     'data':[each['write_topic_weights'] for each in vem_configs],
     'results':[get_cv_results_filename],
     'condor':['']
