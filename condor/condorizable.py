@@ -120,16 +120,21 @@ class Condorizable(object):
         except OSError, e:
             return False
 
-    def get_lock_file_for(self, filename):
+    @classmethod
+    def get_lock_file_for(cls, filename):
         filename = os.path.abspath(filename)
         return os.path.join(os.path.dirname(filename), '.' + os.path.basename(filename) + '.lock')
 
-    def check_output_file_is_unlocked(self, filename):
-        lock_file = self.get_lock_file_for(filename)
-        if os.path.isfile(lock_file):
+    @classmethod
+    def is_locked(cls, filename):
+        lock_file = cls.get_lock_file_for(filename)
+        return os.path.isfile(lock_file)
+
+    @classmethod
+    def check_output_file_is_unlocked(cls, filename):
+        if cls.is_locked(filename):
             raise Exception(
-                'Found lock file %s for output %s!  Another process may be writing to this file.' %
-                            (lock_file, filename))
+                'Found lock for output file %s!  Another process may be writing to this file.' % filename)
 
     def parse_argv_and_run(self, argv=None):
         if argv is not None:
