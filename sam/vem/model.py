@@ -27,7 +27,7 @@ class VEMModel(PickleFileIO):
         self.load_corpus_as_matrix()
 
         # Variational parameters
-        self.alpha = np.ones(self.T)*1.0 + 1.0
+        self.alpha = np.ones(self.T) * 1.0 + 1.0
         self.m = l2_normalize(np.ones(self.V))  # Parameter to p(mu)
         self.kappa0 = 10.0
         self.kappa1 = 5000.0

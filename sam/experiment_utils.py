@@ -15,6 +15,7 @@ def enumerate_configs(config):
         result.append(d)
     return result
 
+
 def get_topic_weight_filename(config):
     """
     Constructs the SAM topic weights file from the rest of the config.
@@ -22,12 +23,14 @@ def get_topic_weight_filename(config):
     base = os.path.splitext(config['corpus'])[0]
     return '%s--%dT.arff' % (base, config['T'])
 
+
 def get_model_filename(config):
     """
     Constructs the SAM model filename from the rest of the config.
     """
     base = os.path.splitext(config['corpus'])[0]
     return '%s--%dT.model' % (base, config['T'])
+
 
 def get_cv_results_filename(config):
     """

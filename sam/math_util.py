@@ -9,6 +9,7 @@ EPS = np.finfo('float64').eps
 def asvector(x):
     return x.reshape(x.size)
 
+
 def ascolvector(x):
     return x.reshape(x.size, 1)
 
@@ -18,7 +19,7 @@ def asrowvector(x):
 
 
 def column_norms(x):
-    return np.sqrt(np.add.reduce((x*x), axis=0))
+    return np.sqrt(np.add.reduce((x * x), axis=0))
 
 
 def l2_normalize(x):
@@ -27,10 +28,10 @@ def l2_normalize(x):
     """
     x = np.asarray(x, dtype='float64')
     if x.ndim == 1:
-        norm_ = np.fmax(norm(x), 100*EPS)
+        norm_ = np.fmax(norm(x), 100 * EPS)
         return x / norm_
     elif x.ndim == 2:
-        norms = np.fmax(column_norms(x), 100*EPS)
+        norms = np.fmax(column_norms(x), 100 * EPS)
         return x / asrowvector(norms)
     else:
         raise ValueError('x should have one or two dimensions')
@@ -59,7 +60,7 @@ def avk(v, k):
     """
     assert np.isscalar(v)
     assert np.isscalar(k)
-    return (np.sqrt((v/k)**2+4) - v/k)/2.0
+    return (np.sqrt((v / k) ** 2 + 4) - v / k) / 2.0
 
 
 def deriv_avk(v, k):
