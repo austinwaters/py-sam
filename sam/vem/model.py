@@ -2,9 +2,9 @@ import numpy as np
 from scipy.special import gammaln, psi, polygamma
 import sys
 
-from pickle_file_io import PickleFileIO
-from math_util import *
-import optimize
+from sam.pickle_file_io import PickleFileIO
+from sam.math_util import *
+import sam.optimize as optimize
 
 
 class VEMModel(PickleFileIO):

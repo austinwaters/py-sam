@@ -3,11 +3,11 @@ from itertools import chain
 import numpy as np
 import sys
 
-from corpus.corpus import CorpusWriter
-from corpus.evidence import load_evidence_file
-from corpus import labelers
+from sam.corpus.corpus import CorpusWriter
+from sam.corpus.evidence import load_evidence_file
+from sam.corpus import labelers
 
-from math_util import l2_normalize
+from sam.math_util import l2_normalize
 
 
 def main(argv=None):

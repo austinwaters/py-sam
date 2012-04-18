@@ -1,16 +1,16 @@
 from argparse import ArgumentParser
 import os
 
-from condor.condorizable import Condorizable
-from corpus.corpus import CorpusReader
-from vem.model import VEMModel
+from sam.condor.condorizable import Condorizable
+from sam.corpus.corpus import CorpusReader
+from sam.vem.model import VEMModel
 
 SAVE_MODEL_INTERVAL = 10
 SAVE_TOPICS_INTERVAL = 10
 
 
 class VEMTask(Condorizable):
-    binary = 'vem.py'
+    binary = 'sam/vem/__main__.py'
 
     def check_args(self, argv):
         parser = ArgumentParser()

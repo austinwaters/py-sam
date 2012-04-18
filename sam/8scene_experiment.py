@@ -7,9 +7,9 @@ Topic weights filename:  <corpus>--<topics>T.arff
 Weka results:  <corpus>--<topics>T--<classifier>.results
 """
 
-from vem.cli import run_sam_batch
-from weka.cross_validator_cli import run_cv_batch
-from experiment_utils import *
+from sam.vem.cli import run_sam_batch
+from sam.weka.cross_validator_cli import run_cv_batch
+from sam.experiment_utils import *
 
 
 # SAM
