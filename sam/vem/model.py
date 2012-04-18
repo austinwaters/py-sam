@@ -20,7 +20,6 @@ class VEMModel(PickleFileIO):
         self.corpus_file = self.reader.filename
         self.V = self.reader.dim  # Vocab size
         self.D = self.reader.num_docs
-        self.num_data = self.reader.num_data
         self.num_docs = self.reader.num_docs
 
         # For efficiency, read the corpus into memory
