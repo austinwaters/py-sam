@@ -2,7 +2,7 @@ from argparse import ArgumentParser
 import os
 import subprocess
 import sys
-from condor.condorizable import Condorizable
+from sam.condor.condorizable import Condorizable
 
 # Path to the jar relative to the binary
 CV_JAR_PATH = 'weka/cross-validator.jar'
