@@ -5,6 +5,7 @@ import sys
 from sam.pickle_file_io import PickleFileIO
 from sam.math_util import *
 import sam.optimize as optimize
+import sam.log as log
 
 
 class VEMModel(PickleFileIO):
@@ -302,22 +303,22 @@ class VEMModel(PickleFileIO):
         self.vmu = l2_normalize(self.vmu)  # Renormalize
 
     def run_one_iteration(self):
-        print 'Updating vAlpha'
+        log.debug('Updating vAlpha')
         self.update_valpha()
 
-        print 'Updating vMu'
+        log.debug('Updating vMu')
         self.update_vmu()
 
-        print 'Updating vM'
+        log.debug('Updating vM')
         self.update_vm()
 
-        print 'Updating M'
+        log.debug('Updating M')
         self.update_m()
 
-        print 'Updating xi'
+        log.debug('Updating xi')
         self.update_xi()
 
-        print 'Updating alpha'
+        log.debug('Updating alpha')
         self.update_alpha()
 
         self.iteration += 1

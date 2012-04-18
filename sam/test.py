@@ -5,6 +5,8 @@ from sam.optimize import check_grad
 from sam.corpus.corpus import CorpusReader
 from sam.vem.model import VEMModel
 
+import sam.log as log
+
 CORPUS_FILENAME = 'nips-425D.h5'
 
 reader = CorpusReader(CORPUS_FILENAME, data_series='sam')
@@ -26,28 +28,26 @@ def check_grads(model):
     import pdb
     try:
         # Main update rules
-        print 'xi update:', check_grad(model, 'xi', model.l_xi, model.grad_l_xi)
-        print 'valpha update:', check_grad(model, 'valpha', model.l_valpha, model.grad_l_valpha)
-        print 'alpha update:', check_grad(model, 'alpha', model.l_alpha, model.grad_l_alpha)
+        log.info('xi update:', check_grad(model, 'xi', model.l_xi, model.grad_l_xi))
+        log.info('valpha update:', check_grad(model, 'valpha', model.l_valpha, model.grad_l_valpha))
+        log.info('alpha update:', check_grad(model, 'alpha', model.l_alpha, model.grad_l_alpha))
 
-        print 'vmu update:', check_grad(model, 'vmu', model.l_vmu, model.tangent_grad_l_vmu)
-
+        log.info('vmu update:', check_grad(model, 'vmu', model.l_vmu, model.tangent_grad_l_vmu))
 
         f = lambda: avk(model.V, model.xi)
         g = lambda: deriv_avk(model.V, model.xi)
-        print 'avk_xi', check_grad(model, 'xi', f, g)
+        log.info('avk_xi', check_grad(model, 'xi', f, g))
 
         f = lambda: np.sum(model.e_squared_norm_batch())
         g = lambda: np.sum(model.grad_e_squared_norm_xi())
-        print 'grad_esn_xi', check_grad(model, 'xi', f, g)
+        log.info('grad_esn_xi', check_grad(model, 'xi', f, g))
 
         f = lambda: np.sum(model.rho_batch())
         g = lambda: np.sum(model.deriv_rho_xi())
-        print 'deriv_rho_xi', check_grad(model, 'xi', f, g)
-
+        log.info('deriv_rho_xi', check_grad(model, 'xi', f, g))
 
     except Exception, e:
-        print e
+        log.error(e)
         pdb.post_mortem()
 
 

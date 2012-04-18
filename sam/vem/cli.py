@@ -4,6 +4,7 @@ import os
 from sam.condor.condorizable import Condorizable
 from sam.corpus.corpus import CorpusReader
 from sam.vem.model import VEMModel
+import sam.log as log
 
 SAVE_MODEL_INTERVAL = 10
 SAVE_TOPICS_INTERVAL = 10
@@ -40,40 +41,40 @@ class VEMTask(Condorizable):
 
     def run(self, options):
         if os.path.exists(options.model):
-            print 'Loading model snapshot from %s' % options.model
+            log.info('Loading model snapshot from %s' % options.model)
             model = VEMModel.load(options.model)
         else:
             # Initialize a model from scratch
-            print 'Initializing new model on %s [T=%d]' % (options.corpus, options.T)
+            log.info('Initializing new model on %s [T=%d]' % (options.corpus, options.T))
             reader = CorpusReader(options.corpus, data_series='sam')
             model = VEMModel(reader=reader, T=options.T)
 
         while model.iteration < options.iterations:
-            print '** Iteration %d / %d **' % (model.iteration + 1, options.iterations)
+            log.info('** Iteration %d / %d **' % (model.iteration + 1, options.iterations))
             model.run_one_iteration()
 
             if model.iteration % SAVE_MODEL_INTERVAL == 0:
-                print 'Saving model snapshot...'
+                log.info('Saving model snapshot...')
                 model.save(options.model)
 
             if model.iteration % SAVE_TOPICS_INTERVAL == 0:
                 if options.write_topics:
-                    print 'Saving topics to %s' % options.write_topics
+                    log.info('Saving topics to %s' % options.write_topics)
                     with open(options.write_topics, 'w') as f:
                         model.write_topics(f)
 
                 if options.write_topic_weights:
-                    print 'Saving topic weights to %s' % options.write_topic_weights
+                    log.info('Saving topic weights to %s' % options.write_topic_weights)
                     with open(options.write_topic_weights, 'w') as f:
                         model.write_topic_weights_arff(f)
 
         if options.write_topics:
-            print 'Saving topics to %s' % options.write_topics
+            log.info('Saving topics to %s' % options.write_topics)
             with open(options.write_topics, 'w') as f:
                 model.write_topics(f)
 
         if options.write_topic_weights:
-            print 'Saving topic weights to %s' % options.write_topic_weights
+            log.info('Saving topic weights to %s' % options.write_topic_weights)
             with open(options.write_topic_weights, 'w') as f:
                 model.write_topic_weights_arff(f)
         model.save(options.model)
@@ -87,11 +88,11 @@ def run_sam_batch(vem_configs):
     for job_settings in vem_configs:
         model_file = job_settings['model']
         if os.path.exists(model_file):
-            print 'WARNING: Model %s already exists; skipping' % os.path.basename(model_file)
+            log.warning('Model %s already exists; skipping' % os.path.basename(model_file))
             continue
         if Condorizable.is_locked(model_file):
-            print 'WARNING: Model %s is locked; check that another job isn''t writing to this path' %\
-                  os.path.basename(model_file)
+            log.warning('Model %s is locked; check that another job isn''t writing to this path' %\
+                  os.path.basename(model_file))
             continue
 
         VEMTask(kw=job_settings)

@@ -8,6 +8,7 @@ from sam.vision.gist import color_gist, grayscale_gist
 from sam.math_util import l2_normalize, ascolvector
 
 from sam.condor.condorizable import Condorizable
+import sam.log as log
 
 
 class MakeGistCorpusTask(Condorizable):
@@ -22,7 +23,7 @@ class MakeGistCorpusTask(Condorizable):
         options = parser.parse_args(argv[1:])
 
         if options.labeler is None:
-            print 'Warning: no labeler provided'
+            log.warning('no labeler provided')
         elif options.labeler not in labelers.registry:
             labeler_names = ', '.join(sorted(labelers.registry.keys()))
             parser.error('Invalid labeler "%s"; available options are %s' % (options.labeler, labeler_names))
@@ -38,12 +39,12 @@ class MakeGistCorpusTask(Condorizable):
 
         # Wait to instantiate the corpus writer until we know the dimensionality of the descriptors we'll be writing
         writer = None
-        print 'Writing SAM corpus to %s' % options.dest_corpus
+        log.info('Writing SAM corpus to %s' % options.dest_corpus)
 
         filenames = open(options.file_list).readlines()
         for i, filename in enumerate(filenames):
             filename = filename.strip()
-            print 'Processing image %d/%d' % (i+1, len(filenames))
+            log.info('Processing image %d/%d' % (i+1, len(filenames)))
 
             descriptor = color_gist(filename) if options.color else grayscale_gist(filename)
             if writer is None:
