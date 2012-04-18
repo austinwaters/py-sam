@@ -7,6 +7,7 @@ from math_util import asrowvector, l2_normalize
 from dataset import DataSet
 from vem.model import VEMModel
 from loss import ClassificationError
+import sam.log as log
 
 
 class TopicSVM(object):
@@ -49,7 +50,6 @@ class TopicSVM(object):
         return self.svm.predict(gram_matrix)
 
 
-
 def make_dataset(model):
     """ Make a DataSet of inferred topic weights from the documents in the VEM model. """
     mean_topic_weights = model.valpha / asrowvector(np.sum(model.valpha, axis=0))
@@ -66,10 +66,10 @@ def run(argv):
     parser.add_argument('-c', type=float, default=1.0, help='SVM C parameter')
     options = parser.parse_args(argv[1:])
 
-    print 'Loading SAM model %s' % options.vem_model
+    log.info('Loading SAM model %s' % options.vem_model)
 
     sam_model = VEMModel.load(options.vem_model)
-    print 'Making dataset'
+    log.info('Making dataset')
     dataset = make_dataset(sam_model)
 
     metric = ClassificationError()
@@ -82,12 +82,10 @@ def run(argv):
 
         predictions = topic_svm.predict(test_data)
         score = metric(test_data.targets, predictions)
-        print score
+        log.info(score)
         scores.append(score)
-    print 'Mean classification error: %g' % np.mean(scores)
+    log.info('Mean classification error: %g' % np.mean(scores))
 
 
 if __name__ == '__main__':
     run(sys.argv)
-
-

@@ -8,6 +8,7 @@ from sam.corpus.evidence import load_evidence_file
 from sam.corpus import labelers
 
 from sam.math_util import l2_normalize
+import sam.log as log
 
 
 def main(argv=None):
@@ -22,7 +23,7 @@ def main(argv=None):
 
     labeler = None
     if options.labeler is None:
-        print 'Warning: no labeler provided'
+        log.warning('no labeler provided')
     elif options.labeler not in labelers.registry:
         labeler_names = ', '.join(sorted(labelers.registry.keys()))
         parser.error('Invalid labeler "%s"; available options are %s' % (options.labeler, labeler_names))
@@ -33,9 +34,9 @@ def main(argv=None):
     num_docs = len(instance_dict)
     feature_ids = sorted(set(chain(*[each.iterkeys() for each in instance_dict.values()])))
     vocab_size = len(feature_ids)
-    print 'Read %d docs (vocabulary size %d) from %s' % (num_docs, vocab_size, options.input_file)
+    log.info('Read %d docs (vocabulary size %d) from %s' % (num_docs, vocab_size, options.input_file))
 
-    print 'Writing L2-normalized corpus to %s' % options.output_file
+    log.info('Writing L2-normalized corpus to %s' % options.output_file)
     writer = CorpusWriter(options.output_file, data_series='sam', dim=vocab_size)
 
     # Create a map of feature_id => dense feature index
@@ -53,7 +54,7 @@ def main(argv=None):
     writer.close()
 
     wordlist_path = options.output_file + '.wordlist'
-    print 'Writing wordlist to %s' % wordlist_path
+    log.info('Writing wordlist to %s' % wordlist_path)
     with open(wordlist_path, 'w') as f:
         f.writelines([s + '\n' for s in feature_ids])
 
