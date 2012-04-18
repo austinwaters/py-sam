@@ -1,9 +1,9 @@
 import numpy as np
-from math_util import avk, deriv_avk
-from optimize import check_grad
+from sam.math_util import avk, deriv_avk
+from sam.optimize import check_grad
 
-from corpus.corpus import CorpusReader
-from vem.model import VEMModel
+from sam.corpus.corpus import CorpusReader
+from sam.vem.model import VEMModel
 
 CORPUS_FILENAME = 'nips-425D.h5'
 

@@ -19,11 +19,11 @@ from itertools import izip
 import os
 import sys
 
-from arff import ArffWriter
-from corpus import labelers
-from vision.gist import color_gist, grayscale_gist
-from math_util import l2_normalize
-from condor.condorizable import Condorizable
+from sam.arff import ArffWriter
+from sam.corpus import labelers
+from sam.vision.gist import color_gist, grayscale_gist
+from sam.math_util import l2_normalize
+from sam.condor.condorizable import Condorizable
 
 
 class MakeGistArffTask(Condorizable):

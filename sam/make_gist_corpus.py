@@ -2,12 +2,12 @@ from argparse import ArgumentParser
 import os
 import sys
 
-from corpus import labelers
-from corpus.corpus import CorpusWriter
-from vision.gist import color_gist, grayscale_gist
-from math_util import l2_normalize, ascolvector
+from sam.corpus import labelers
+from sam.corpus.corpus import CorpusWriter
+from sam.vision.gist import color_gist, grayscale_gist
+from sam.math_util import l2_normalize, ascolvector
 
-from condor.condorizable import Condorizable
+from sam.condor.condorizable import Condorizable
 
 
 class MakeGistCorpusTask(Condorizable):

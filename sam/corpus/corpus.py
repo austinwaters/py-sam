@@ -3,7 +3,7 @@ from math import floor
 import h5py
 from numpy.random import shuffle
 import numpy as np
-from math_util import asvector, sum_lt, numpy_random_seed_temporarily
+from sam.math_util import asvector, sum_lt, numpy_random_seed_temporarily
 
 NAMES_SERIES = 'names'
 LABELS_SERIES = 'labels'
