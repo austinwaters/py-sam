@@ -49,6 +49,7 @@ Error =  %s
 stream_error = True
 """
 
+
 def kwargs_to_argv(kw):
     argv = []
     for k, v in kw.items():
@@ -79,10 +80,10 @@ class Condorizable(object):
         if self.binary is None:
             self.binary = os.path.abspath(inspect.getfile(self.__class__))
             print 'Guessing binary %s' % self.binary
-        
+
         if not os.path.isfile(self.binary):
             raise Exception('Unable to locate binary %s for condorizable job' % self.binary)
-            
+
         if kw is not None:
             argv = [self.binary] + kwargs_to_argv(kw)
         elif argv is not None:
@@ -188,7 +189,7 @@ class Condorizable(object):
         # In condor file:  Arguments = "arg1 'arg2 with spaces' arg3"
         args = '"' + '-O ' + ' '.join([pipes.quote(each) for each in argv]) + '"'
         current_dir = os.getcwd()
-        requirements = 'InMastodon && (%s)' % requirements if requirements else 'InMastodon' 
+        requirements = 'InMastodon && (%s)' % requirements if requirements else 'InMastodon'
 
         temp_prefix = '%s.%s-' % (os.path.basename(executable), str(os.getpid()))
         condor_file = mkstemp(dir='/tmp', prefix=temp_prefix, suffix='.condor')[1]
@@ -204,7 +205,6 @@ class Condorizable(object):
             f.write(CondorScriptFooter % args)
         # TODO check if this fails
         os.popen('condor_submit %s' % condor_file)
-
 
     def check_args(self, argv):
         """ Parses the argument list and returns an options structure. """
