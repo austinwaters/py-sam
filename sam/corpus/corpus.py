@@ -1,12 +1,55 @@
+from itertools import chain
 import os
 from math import floor
 import h5py
 from numpy.random import shuffle
 import numpy as np
-from sam.math_util import asvector, sum_lt, numpy_random_seed_temporarily
+from sam.corpus.evidence import load_evidence_file
+from sam.math_util import asvector, sum_lt, numpy_random_seed_temporarily, l2_normalize
 
 NAMES_SERIES = 'names'
 LABELS_SERIES = 'labels'
+
+
+class EvidenceReader:
+    """
+    Interface for reading evidence files.
+    """
+    def __init__(self, filename, labeler=None):
+        self.filename = filename
+
+        instance_dict = load_evidence_file(filename)
+        num_docs = len(instance_dict)
+        doc_names = sorted(instance_dict.keys())
+        feature_ids = sorted(set(chain(*[each.iterkeys() for each in instance_dict.values()])))
+        vocab_size = len(feature_ids)
+
+        # Create a map of feature_id => dense feature index
+        feature_index = {k:i for i, k in enumerate(feature_ids)}
+
+        doc_matrix = np.zeros((num_docs, vocab_size))
+        doc_labels = []
+
+        # For each document, convert sparse features to dense L2-normalized feature vector and write it into the
+        # document matrix
+        for i, name in enumerate(doc_names):
+            sparse_features = instance_dict[name]
+
+            doc_data = np.zeros(vocab_size)
+            for id, count in sparse_features.iteritems():
+                doc_data[feature_index[id]] = count
+            doc_data = l2_normalize(doc_data)
+            doc_labels[i] = labeler(name) if labeler else None
+            doc_matrix[i, :] = doc_data
+
+        self.num_docs = num_docs
+        self.raw_labels = doc_labels
+        self.class_names = sorted(set(doc_labels))
+        self.doc_matrix = doc_matrix
+        self.dim = len(feature_index)
+
+    def read_doc(self, d):
+        return self.doc_matrix[d, :]
 
 
 class CorpusReader:
