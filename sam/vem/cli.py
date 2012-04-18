@@ -44,12 +44,12 @@ class VEMTask(Condorizable):
             model = VEMModel.load(options.model)
         else:
             # Initialize a model from scratch
-            print 'Initializing new model'
+            print 'Initializing new model on %s [T=%d]' % (options.corpus, options.T)
             reader = CorpusReader(options.corpus, data_series='sam')
             model = VEMModel(reader=reader, T=options.T)
 
         while model.iteration < options.iterations:
-            print '** Iteration %d **' % model.iteration
+            print '** Iteration %d / %d **' % (model.iteration + 1, options.iterations)
             model.run_one_iteration()
 
             if model.iteration % SAVE_MODEL_INTERVAL == 0:
