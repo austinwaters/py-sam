@@ -3,18 +3,23 @@ Loss functions.
 """
 
 import numpy as np
+import sam.log as log
+
 
 class SquaredLoss(object):
     def __call__(self, targets, predictions):
         return np.sum((np.asarray(targets) - np.asarray(predictions)) ** 2)
 
+
 class LogLoss(object):
     def __call__(self, targets, predictions):
         return np.sum(-np.log((predictions ** targets) * (1.0 - predictions) ** (1.0 - targets)))
 
+
 class MeanSquaredError(object):
     def __call__(self, targets, predictions):
         return np.mean((np.asarray(targets) - np.asarray(predictions)) ** 2)
+
 
 class ClassificationError(object):
     def __call__(self, targets, predictions):
@@ -22,6 +27,7 @@ class ClassificationError(object):
             raise ValueError('Targets and predictions have different lengths')
         num_incorrect = np.sum(targets != np.round(predictions)) # TODO: generalize to use decision rule object
         return num_incorrect / float(len(targets))
+
 
 class PrecisionRecallBreakEvenLoss(object):
     """
@@ -39,6 +45,7 @@ class PrecisionRecallBreakEvenLoss(object):
         # Compute precision @ (num positive examples), which also equals the recall
         precision = float(np.count_nonzero(targets[-num_positives:] == 1.0))/num_positives
         return 1.-precision
+
 
 class ClassificationCost(object):
     def __init__(self, fp_weight=1.0, fn_weight=1.0):
@@ -85,6 +92,7 @@ class RankingLoss(object):
                 num_incorrect_pairs += ((targets == 1.0) * (predictions <= p)).sum()
         return num_incorrect_pairs / float(num_pos*num_neg) / 2.0
 
+
 def print_rank_info(targets, predictions):
     original_targets = targets.copy()
 
@@ -96,7 +104,7 @@ def print_rank_info(targets, predictions):
     predictions = predictions[sorted_indices]
     targets = targets[sorted_indices]
 
-    print 'Original targets'
-    print ''.join(['+' if each == 1.0 else '-' for each in original_targets])
-    print 'Sorted by predictions (%g - %g)' % (predictions[0], predictions[-1])
-    print ''.join(['+' if each == 1.0 else '-' for each in targets])
+    log.info('Original targets'
+    log.info(''.join(['+' if each == 1.0 else '-' for each in original_targets]))
+    log.info('Sorted by predictions (%g - %g)' % (predictions[0], predictions[-1]))
+    log.info(''.join(['+' if each == 1.0 else '-' for each in targets]))

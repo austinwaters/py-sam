@@ -1,4 +1,5 @@
 import numpy as np
+import sam.log as log
 
 
 def ravel(x):
@@ -45,14 +46,14 @@ def check_grad(model, param_name, f, g):
 
     def eval_f(param_as_list):
         old_value = p.get()  # Save old
-        p.set_flattened(param_as_list) # Set new
+        p.set_flattened(param_as_list)  # Set new
         f_val = f()
         p.set(old_value)  # Restore old value
         return f_val
 
     def eval_g(param_as_list):
         old_value = p.get()  # Save old
-        p.set_flattened(param_as_list) # Set new
+        p.set_flattened(param_as_list)  # Set new
         g_val = ravel(g())
         p.set(old_value)  # Restore old value
         return g_val
@@ -83,7 +84,7 @@ def optimize_parameter(model, param_name, f, g, bounds=(1e-4, None), disp=0, max
     x, nfeval, rc = fmin_tnc(negative_f_and_f_prime, x0=x0, bounds=bounds, disp=disp, maxfun=max_evals)
     p.set_flattened(x)
     new_f_val = f()
-    print 'Optimized %s; improvement: %g' % (param_name, new_f_val - old_f_val)
+    log.info('Optimized %s; improvement: %g' % (param_name, new_f_val - old_f_val))
 
 
 def optimize_parameter_lbfgs(model, param_name, f, g, bounds=(1e-4, None), disp=0, max_evals=100):
@@ -95,14 +96,14 @@ def optimize_parameter_lbfgs(model, param_name, f, g, bounds=(1e-4, None), disp=
     # evaluation
     def eval_f(param_as_list):
         old_value = p.get()  # Save old
-        p.set_flattened(param_as_list) # Set new
+        p.set_flattened(param_as_list)  # Set new
         f_val = f()
         p.set(old_value)  # Restore old value
         return -f_val
 
     def eval_g(param_as_list):
         old_value = p.get()  # Save old
-        p.set_flattened(param_as_list) # Set new
+        p.set_flattened(param_as_list)  # Set new
         g_val = ravel(g())
         p.set(old_value)  # Restore old value
         return -g_val
@@ -115,4 +116,4 @@ def optimize_parameter_lbfgs(model, param_name, f, g, bounds=(1e-4, None), disp=
     x, new_f_val, d = fmin_l_bfgs_b(eval_f, x0, fprime=eval_g, bounds=bounds, maxfun=max_evals, disp=disp)
     p.set_flattened(x)
     new_f_val = f()
-    print 'Optimized %s; improvement: %g' % (param_name, new_f_val - old_f_val)
+    log.info('Optimized %s; improvement: %g' % (param_name, new_f_val - old_f_val))

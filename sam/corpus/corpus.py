@@ -135,7 +135,7 @@ class CorpusReader:
         if os.path.isfile(self.filename):
             self.open(self.filename)
         else:
-            print 'Warning: unable to find corpus %s' % state['filename']
+            log.warning('unable to find corpus %s' % state['filename'])
 
     def __getstate__(self):
         return {

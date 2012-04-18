@@ -25,6 +25,8 @@ from sam.vision.gist import color_gist, grayscale_gist
 from sam.math_util import l2_normalize
 from sam.condor.condorizable import Condorizable
 
+import sam.log as log
+
 
 class MakeGistArffTask(Condorizable):
     binary = Condorizable.path_to_script(__file__)
@@ -53,11 +55,11 @@ class MakeGistArffTask(Condorizable):
         class_list = sorted(set(labels))
 
         writer = ArffWriter(options.dest, class_list=class_list)
-        print 'Writing GIST data to %s' % options.dest
+        log.info('Writing GIST data to %s' % options.dest)
 
         for i, (filename, label) in enumerate(izip(filenames, labels)):
             filename = filename.strip()
-            print 'Processing image %d/%d' % (i+1, len(filenames))
+            log.info('Processing image %d/%d' % (i+1, len(filenames)))
 
             descriptor = color_gist(filename) if options.color else grayscale_gist(filename)
 
@@ -69,4 +71,3 @@ class MakeGistArffTask(Condorizable):
 
 if __name__ == '__main__':
     MakeGistArffTask(sys.argv)
-

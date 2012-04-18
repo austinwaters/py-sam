@@ -2,10 +2,17 @@ import setuptools
 import setuptools.extension
 
 setuptools.setup(
+<<<<<<< HEAD
+    name="sam",
+    version="0.1",
+    packages=setuptools.find_packages(),
+    install_requires=[
+=======
     name = "py-sam",
     version = "0.1",
     packages = setuptools.find_packages(),
     install_requires = [
+>>>>>>> 517b83245b6ca23d1983d533d93c8dc4cbc0f0c5
         #"Cython>=0.15.1",
         "numpy>=1.6.1",
         "scipy>=0.10.0",
@@ -25,4 +32,3 @@ setuptools.setup(
         "Topic :: Scientific/Engineering :: Artificial Intelligence",
         ],
     )
-
