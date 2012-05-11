@@ -20,6 +20,8 @@ import signal
 import sys
 from tempfile import mkstemp
 
+import sam.log as log
+
 CondorScriptHeader = """
 universe = vanilla
 requirements = %s
@@ -79,7 +81,7 @@ class Condorizable(object):
         # If the class doesn't specify 'binary', use the python file in which the class was defined.
         if self.binary is None:
             self.binary = os.path.abspath(inspect.getfile(self.__class__))
-            print 'Guessing binary %s' % self.binary
+            log.info('Guessing binary %s' % self.binary)
 
         if not os.path.isfile(self.binary):
             raise Exception('Unable to locate binary %s for condorizable job' % self.binary)
@@ -113,7 +115,7 @@ class Condorizable(object):
         for output_file in self.output_files:
             lock_file = self.get_lock_file_for(output_file)
             if os.path.isfile(lock_file):
-                print 'Removing lock file %s' % lock_file
+                log.info('Removing lock file %s' % lock_file)
                 os.remove(lock_file)
 
     def add_output_file(self, filename):
@@ -174,7 +176,7 @@ class Condorizable(object):
             self.check_output_file_is_unlocked(filename)
 
         if condorize:
-            print 'Condorizing %s' % ' '.join(self.argv)
+            log.info('Condorizing %s' % ' '.join(self.argv))
             self.run_on_condor(self.argv, log_output=log_output)
             return
 
